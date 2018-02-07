@@ -1,0 +1,33 @@
+#!/bin/bash
+
+END=100
+
+for i in $(seq 1 $END); do 
+	echo "Requesting top billboard for rank ${i}"
+
+	BILLBOARDS_URI="http://billboard.modulo.site/rank/album/${i}?from=2000-1-1&to=2017-12-31"
+	RESPONSE="/Users/taylorperkins/Desktop/billboards/album/${i}-rank.json"
+
+	# store the whole response with the status at the and
+	HTTP_RESPONSE=$(curl --silent --write-out "HTTPSTATUS:%{http_code}" -X GET $BILLBOARDS_URI)
+	echo "Request made!"
+
+
+	# extract the body
+	HTTP_BODY=$(echo $HTTP_RESPONSE | sed -e 's/HTTPSTATUS\:.*//g')
+
+	# extract the status
+	HTTP_STATUS=$(echo $HTTP_RESPONSE | tr -d '\n' | sed -e 's/.*HTTPSTATUS://')
+
+	# example using the status
+	if [ ! $HTTP_STATUS -eq 200  ]; then
+	  echo "Error [HTTP status: $HTTP_STATUS]"
+	  exit 1
+	fi
+
+	echo "Success [HTTP Status $HTTP_STATUS]"
+	echo $HTTP_BODY >> $RESPONSE
+
+done
+
+echo "\nWOW YOU REALLY DID IT"

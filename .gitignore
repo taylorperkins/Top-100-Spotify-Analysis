@@ -1,0 +1,6 @@
+.Rhistory
+.Rprofile
+.ipynb_checkpoints/
+venv/
+packrat/
+data/
