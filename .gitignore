@@ -4,3 +4,4 @@
 venv/
 packrat/
 data/
+packrat/lib*/
