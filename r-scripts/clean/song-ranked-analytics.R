@@ -105,22 +105,61 @@ library(iterators)
 # saveRDS(sra, './data/r-objects/song-ranked-analytics/sra-cleanup-1.rds')
 sra <- readRDS('./data/r-objects/song-ranked-analytics/sra-cleanup-1.rds')
 
-# ADD IN YEAR AND MONTH
-sra <- sra %>% 
-  mutate(
-    year = strftime(date, '%Y'),
-    month = strftime(date, '%b')
-  )
-
-# ADD KEY NAMES PER KEY
+# ADD CHR KEY VALUES PER KEY
 key_num <- c(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)
 key_names <- c('C', 'C#/Db', 'D', 'D#/Eb', 'E', 'F', 'F#/Gb', 'G', 'G#/Ab', 'A', 'A#/Bb', 'B')
 
 key_map <- setNames(as.list(key_names), key_num)
 
+# DEFINE METHOD TO DETERMINE A CATEGORY GIVEN A RANGE BETWEEN 0 AND 1 --> LOW, MEDIUM, AND HIGH
+low_med_high <- function(val) {
+  if (val < .3333) {
+    cat <- 'low'
+  } else if (val < .6667) {
+    cat <- 'medium'
+  } else {
+    cat <- 'high'
+  }
+  
+  cat
+}
+
+# METHODS TO DETERMINE RANK YES / NO
+is_top_ten <- function(val) {
+  if (val <= 10) {
+    return(1)
+  }
+  return(0)
+}
+
+is_number_one <- function(val) {
+  if (val == 1) {
+    return(1)
+  }
+  return(0)
+}
+
+# ADD IN YEAR AND MONTH, KEY_NAME
 sra <- sra %>% 
   mutate(
+    year = strftime(date, '%Y'),
+    month = strftime(date, '%b'),
     key_name = key_names[match(key, key_num)]
+  ) %>% 
+  rowwise() %>% 
+  mutate(
+    danceability_cat = low_med_high(danceability)
   )
+
+sra$danceability_cat <- mapply(low_med_high, sra$danceability)
+sra$acousticness_cat <- mapply(low_med_high, sra$acousticness)
+sra$energy_cat <- mapply(low_med_high, sra$energy)
+sra$instrumentalness_cat <- mapply(low_med_high, sra$instrumentalness)
+sra$liveness_cat <- mapply(low_med_high, sra$liveness)
+sra$speechiness_cat <- mapply(low_med_high, sra$speechiness)
+sra$valence_cat <- mapply(low_med_high, sra$valence)
+
+sra$is_top_ten <- mapply(is_top_ten, sra$rank)
+sra$is_number_one <- mapply(is_number_one, sra$rank)
 
 saveRDS(sra, './data/r-objects/song-ranked-analytics/song-ranked-analytics.rds')
