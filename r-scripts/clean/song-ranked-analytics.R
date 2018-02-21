@@ -42,7 +42,27 @@ library(iterators)
 # valence
 # 
 #############################
+# ADDED FIELDS
+#############################
+# 
+# song_previously_ranked <- since I have a date field, I wanted to create a new field to determine if a song has previously made the top 100.
+#                           This is a count per row of the time before that the specific song has made the top 100
+# artist_previously_ranked <- Very similar to song_previously_ranked, only grouping by artist
+# year <- year song was ranked
+# month <- month year was ranked
+# key_name <- chr representation of the key
+# danceability_cat <- low, medium, high danceability category
+# acousticness_cat <- low, medium, high acousticeness category
+# energy_cat <- low, medium, high energy category
+# instrumentalness_cat <- low, medium, high instrumentalness category
+# liveness_cat <- low, medium, high liveness category
+# speechiness_cat <- low, medium, high speechiness category
+# valence_cat <- low, medium, high valence category
+# is_top_ten <- 0 / 1 is ranked within top ten
+# is_number_one <- 0 / 1 is ranked at 1
 
+# 
+#############################
 #############################
 # READ IN SONG RANKED ANALYTICS
 #############################
@@ -145,10 +165,6 @@ sra <- sra %>%
     year = strftime(date, '%Y'),
     month = strftime(date, '%b'),
     key_name = key_names[match(key, key_num)]
-  ) %>% 
-  rowwise() %>% 
-  mutate(
-    danceability_cat = low_med_high(danceability)
   )
 
 sra$danceability_cat <- mapply(low_med_high, sra$danceability)
