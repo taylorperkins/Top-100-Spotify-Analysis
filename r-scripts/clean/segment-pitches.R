@@ -2,15 +2,16 @@
 # 
 # PITCHES FIELD PER SEGMENT PER SONG FROM AUDIO-ANALYSIS API
 # ______________
-# song_id - spotify_id
-# segment_id - linking to song segment
-# X[0-11] - pitch values. 12 pitches per segment. 0-11 represents index value
+# song_id                   - spotify_id
+# segment_id                - linking to song segment
+# X[0-11]                   - pitch values. 12 pitches per segment. 0-11 represents index value
 # 
 #############################
 # 
 # ADDED FIELDS
-# X[0-11]_song_avg - avg col x per song
-# X_segment_avg - avg x per segment
+# ______________
+# X[0-11]_song_avg          - avg col x per song
+# X_segment_avg             - avg x per segment
 # 
 #############################
 # READ IN SEGMENTS-PITCHES

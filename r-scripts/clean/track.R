@@ -22,6 +22,7 @@
 #############################
 # 
 # ADDED FIELDS
+# ______________
 # key_name                  - chr representation of the field key
 # duration_no_fade          - duration of the song without the fade-in or fade-out
 # normalized_num_samples    - The num_samples field ranges between 817,000 and 15,180,000. This field is to

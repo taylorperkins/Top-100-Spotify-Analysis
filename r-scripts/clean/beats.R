@@ -2,15 +2,16 @@
 # 
 # BEATS FIELD FROM AUDIO-ANALYSIS API
 # ______________
-# id - spotify_id
-# confidence
-# start
-# duration
+# id                        - spotify_id
+# confidence                - confidence level for beat
+# start                     - start of beat in ms
+# duration                  - duration of beat in ms
 # 
 #############################
 # 
 # ADDED FIELDS
-# beat_count - num of bars per song
+# ______________
+# beat_count                - num of bars per song
 # 
 #############################
 # READ IN BEATS

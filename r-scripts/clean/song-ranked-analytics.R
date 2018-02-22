@@ -13,12 +13,12 @@ library(iterators)
 # 
 # BILLBOARDS API
 # ______________
-# date             date song was ranked
-# song_id          unique song id for billboards api (not used by me)
-# song_name        name of song
-# artist_id        unique artist id for billboards api (not used by me)
-# spotify_id      unique song id for spotify api
-# rank             rank given
+# date                      - date song was ranked
+# song_id                   - unique song id for billboards api (not used by me)
+# song_name                 - name of song
+# artist_id                 - unique artist id for billboards api (not used by me)
+# spotify_id                - unique song id for spotify api
+# rank                      - rank given
 # 
 # SPOTIFY API
 # **field definitions can be found at https://developer.spotify.com/web-api/get-several-audio-features/ **
@@ -43,26 +43,23 @@ library(iterators)
 # 
 #############################
 # ADDED FIELDS
-#############################
+# ______________
+# song_previously_ranked    - since I have a date field, I wanted to create a new field to determine if a song has previously made the top 100.
+#                             This is a count per row of the time before that the specific song has made the top 100
+# artist_previously_ranked  - Very similar to song_previously_ranked, only grouping by artist
+# year                      - year song was ranked
+# month                     - month year was ranked
+# key_name                  - chr representation of the key
+# danceability_cat          - low, medium, high danceability category
+# acousticness_cat          - low, medium, high acousticeness category
+# energy_cat                - low, medium, high energy category
+# instrumentalness_cat      - low, medium, high instrumentalness category
+# liveness_cat              - low, medium, high liveness category
+# speechiness_cat           - low, medium, high speechiness category
+# valence_cat               - low, medium, high valence category
+# is_top_ten                - 0 or 1 is ranked within top ten
+# is_number_one             - 0 or 1 is ranked at 1
 # 
-# song_previously_ranked <- since I have a date field, I wanted to create a new field to determine if a song has previously made the top 100.
-#                           This is a count per row of the time before that the specific song has made the top 100
-# artist_previously_ranked <- Very similar to song_previously_ranked, only grouping by artist
-# year <- year song was ranked
-# month <- month year was ranked
-# key_name <- chr representation of the key
-# danceability_cat <- low, medium, high danceability category
-# acousticness_cat <- low, medium, high acousticeness category
-# energy_cat <- low, medium, high energy category
-# instrumentalness_cat <- low, medium, high instrumentalness category
-# liveness_cat <- low, medium, high liveness category
-# speechiness_cat <- low, medium, high speechiness category
-# valence_cat <- low, medium, high valence category
-# is_top_ten <- 0 / 1 is ranked within top ten
-# is_number_one <- 0 / 1 is ranked at 1
-
-# 
-#############################
 #############################
 # READ IN SONG RANKED ANALYTICS
 #############################
@@ -178,4 +175,7 @@ sra$valence_cat <- mapply(low_med_high, sra$valence)
 sra$is_top_ten <- mapply(is_top_ten, sra$rank)
 sra$is_number_one <- mapply(is_number_one, sra$rank)
 
+#############################
+# SAVE OFF R-OBJECT
+#############################
 saveRDS(sra, './data/r-objects/song-ranked-analytics/song-ranked-analytics.rds')

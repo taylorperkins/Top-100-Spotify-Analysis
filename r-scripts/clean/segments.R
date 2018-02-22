@@ -2,9 +2,9 @@
 # 
 # SEGMENTS FIELD FROM AUDIO-ANALYSIS API
 # ______________
-# id - unique segment id
-# song_id - spotify_id
-# duration - length of segment in ms
+# id                        - unique segment id
+# song_id                   - spotify_id
+# duration                  - length of segment in ms
 # loudness_max
 # loudness_max_time
 # loudness_start
@@ -13,6 +13,7 @@
 #############################
 # 
 # ADDED FIELDS
+# ______________
 # avg_song_segment_duration - avg segment duration per song
 # 
 #############################

@@ -2,16 +2,17 @@
 # 
 # SECTIONS FIELD FROM AUDIO-ANALYSIS API
 # ______________
-# id - spotify_id
-# confidence
-# start
-# duration
+# id                        - spotify_id
+# confidence                - confidence level for section 0-1
+# start                     - start or section in ms
+# duration                  - length of section in ms
 # 
 #############################
 # 
 # ADDED FIELDS
-# section_count -> count per id
-# key_name -> chr labeling for key 
+# ______________
+# section_count             - count per id
+# key_name                  - chr labeling for key 
 # 
 #############################
 # READ IN SECTIONS

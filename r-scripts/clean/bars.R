@@ -2,15 +2,16 @@
 # 
 # BARS FIELD FROM AUDIO-ANALYSIS API
 # ______________
-# id - spotify_id
-# confidence
-# start
-# duration
+# id                        - spotify_id
+# confidence                - confidence level for bar
+# start                     - start of bar in ms
+# duration                  - length of the bar in ms
 # 
 #############################
 # 
 # ADDED FIELDS
-# bar_count - num of bars per song
+# ______________
+# bar_count                 - num of bars per song
 # 
 #############################
 # READ IN BARS
