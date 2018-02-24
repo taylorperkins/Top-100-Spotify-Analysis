@@ -23,6 +23,10 @@ segments_pitches <- read.csv('./data/full-analysis/segments/segment-pitches.csv'
 # START CLEANING PROCESS
 #############################
 
+#############################
+# SEGMENTS, TIMBRES, AND PITCHES ARE A 1 TO 1
+#############################
+
 # ADD A COUNT FIELD PER ID 
 segments_pitches <- segments_pitches %>% 
   group_by(song_id) %>% 

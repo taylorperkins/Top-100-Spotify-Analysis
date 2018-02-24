@@ -19,6 +19,7 @@
 #############################
 # READ IN SEGMENTS
 #############################
+# 1 to 1 relationship with pitches and timbres
 segments <- read.csv('./data/full-analysis/segments/segments.csv')
 
 #############################
