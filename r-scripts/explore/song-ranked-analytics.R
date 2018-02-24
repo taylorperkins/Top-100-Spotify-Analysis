@@ -42,7 +42,6 @@ sra %>%
   group_by(date) %>% 
   summarise(
     avg_acousticness = mean(acousticness),
-    true_avg_acousticness = sum(acousticness * )
     avg_danceability = mean(danceability),
     avg_energy = mean(energy),
     avg_instrumentalness = mean(instrumentalness),
@@ -80,7 +79,8 @@ create_box_vs_year = function(df, variable) {
     )
   ) +
   geom_boxplot() +
-  ylab(variable)
+  xlab(variable) +
+  coord_flip()
 }
 
 cols <- c(
@@ -114,4 +114,7 @@ cols <- c(
 #############################
 for (var in seq_along(cols)) {
   print(create_box_vs_year(sra, cols[[var]]))
+  hist(sra[[cols[[var]]]], xlab = cols[[var]])
 }
+
+
