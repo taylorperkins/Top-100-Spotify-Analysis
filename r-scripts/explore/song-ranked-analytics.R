@@ -40,7 +40,7 @@ sra %>%
 # lines plot over each date instance
 sra %>% 
   group_by(date) %>% 
-  summarise(
+  dplyr::mutate(
     avg_acousticness = mean(acousticness),
     avg_danceability = mean(danceability),
     avg_energy = mean(energy),
