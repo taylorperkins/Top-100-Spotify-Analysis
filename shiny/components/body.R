@@ -2,9 +2,15 @@
 library(shinydashboard)
 
 source('./components/body/general.R')
+source('./components/body/artist.R')
+source('./components/body/coorelation_art.R')
 
 
 body <- dashboardBody(
+  tags$head(
+    tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
+  ),
+  
   tabItems(
     
     ########################
@@ -14,13 +20,21 @@ body <- dashboardBody(
       general,
       tabName = "dashboard"
     ),
-    
+
     ########################
-    # Second tab content
+    # Artist View
     ########################
     tabItem(
-      tabName = "Artist",
-      h2("Widgets tab content")
+      artist,
+      tabName = "artist"
+    ),
+
+    ########################
+    # Coorelation Art View
+    ########################
+    tabItem(
+      coorelation_art,
+      tabName = "coorelation_art"
     )
   )
 )

@@ -4,23 +4,38 @@ library(shinydashboard)
 library(ggplot2)
 library(dplyr)
 library(reshape2)
+library(xts)
+library(highcharter)
+library(Hmisc)
+library(DT)
 
 
-general_server <- function(reactive_input, output, session) {
+general_server <- function(input, output, session) {
   
-  output$general_histPlot <- histPlot(reactive_input)
-  output$general_boxPlot <- boxPlot(reactive_input)
-  output$general_lineGraph <- lineGraph(reactive_input)
+  output$general_histPlot <- general_histPlot(input)
+  output$general_boxPlot <- general_boxPlot(input)
+  output$general_lineGraph <- general_lineGraph(input)
+  output$general_dataTab <- general_dataTab(input)
   
-  output$general_popularArtist <- infoBox_popularArtist(reactive_input)
-  output$general_highestRankedArtist <- infoBox_highestRankedArtist(reactive_input)
-  output$general_popularSong <- infoBox_popularSong(reactive_input)
-  output$general_highestRankedSong <- infoBox_highestRankedSong(reactive_input)
+  output$general_popularArtist <- general_infoBox_popularArtist(input)
+  output$general_highestRankedArtist <- general_infoBox_highestRankedArtist(input)
+  output$general_popularSong <- general_infoBox_popularSong(input)
+  output$general_highestRankedSong <- general_infoBox_highestRankedSong(input)  
   
 }
 
 
-createInfoBoxPopularText <- function(row) {
+filter_df <- function(input, cols) {
+  startDate <- input$sidebar_dateRange[[1]]
+  endDate <- input$sidebar_dateRange[[2]]
+
+  sra[ 
+    sra$date >= startDate & sra$date <= endDate, 
+  ][ , cols ]
+}
+
+
+general_createInfoBoxPopularText <- function(row) {
   paste0(
     "<span class='info-box-number'>",
       "Song Count: <span class='pull-right'>", row$count, "</span></br>",
@@ -30,22 +45,31 @@ createInfoBoxPopularText <- function(row) {
 }
 
 
-createInfoBoxHighestText <- function(row) {
+general_createInfoBoxHighestText <- function(row) {
   paste0(
     "<span class='info-box-number'>",
       "Song Count: <span class='pull-right'>", row$count, "</span></br>",
-      "Avg Ranking: <span class='pull-right'>", format(round(row$highest_rank, 2), nsmall = 2), "</span>",
+      "Avg Ranking: <span class='pull-right'>", format(round(row$avg_rank, 2), nsmall = 2), "</span>",
+      "Score: <span class='pull-right'>", format(round(row$score, 2), nsmall = 2), "</span>",
     "</span>"
   )
 }
 
 
-infoBox_popularArtist <- function(reactive_input) {
+reversed_scoring <- function(rank_col, highest_rank, df_len) {
+  new_ranks = sapply(rank_col, function(val) { highest_rank - val })
+  sum(new_ranks) / df_len
+}
+
+
+general_infoBox_popularArtist <- function(input) {
   
   renderInfoBox({
-    pop_artist <- reactive_input()$df %>% 
+    df <- filter_df( input, c('display_artist', 'rank') )
+
+    pop_artist <- df %>% 
       select(display_artist, rank) %>% 
-      rename(name = display_artist) %>% 
+      dplyr::rename(name = display_artist) %>% 
       group_by(name) %>% 
       mutate(
         count = n(),
@@ -57,60 +81,65 @@ infoBox_popularArtist <- function(reactive_input) {
     infoBox(
       HTML(
         paste0(
-          "<span class='info-box-text'>Most Popular Artist</br>",
+          "<span class='info-box-text'>Most Frequent Artist</br>",
           "<strong><em>", pop_artist$name, "</em></strong></span>"
         )
       ),
       HTML(
-        createInfoBoxPopularText(pop_artist)
+        general_createInfoBoxPopularText(pop_artist)
       ),
-      icon = icon("list"),
-      color = "purple",
+      icon = icon("user"),
+      color = "black",
       width = 12
     )
   })
   
 }
 
-infoBox_highestRankedArtist <- function(reactive_input) {
-  
+general_infoBox_highestRankedArtist <- function(input) {
   renderInfoBox({
-    highest_artist <- reactive_input()$df %>% 
+
+    df <- filter_df( input, c('display_artist', 'rank') )
+
+    highest_artist <- df %>% 
       select(display_artist, rank) %>% 
-      rename(name = display_artist) %>% 
+      dplyr::rename(name = display_artist) %>% 
       group_by(name) %>% 
       mutate(
         count = n(),
-        highest_rank = mean(rank)
+        score = reversed_scoring(rank, max(df$rank), nrow(df)),
+        avg_rank = mean(rank)
       ) %>% 
-      arrange(desc(highest_rank)) %>% 
+      arrange(desc(score)) %>% 
       head(n = 1)
     
     infoBox(
       HTML(
         paste0(
-          "<span class='info-box-text'>Highest Ranked Artist</br>",
+          "<span class='info-box-text'>Highest Scored Artist</br>",
           "<strong><em>", highest_artist$name, "</em></strong></span>"
         )
       ),
       HTML(
-        createInfoBoxHighestText(highest_artist)
+        general_createInfoBoxHighestText(highest_artist)
       ),
-      icon = icon("list"),
-      color = "purple",
+      icon = icon("user"),
+      color = "black",
       width = 12
     )
+
   })
-  
 }
 
 
-infoBox_popularSong <- function(reactive_input) {
-  
+general_infoBox_popularSong <- function(input) {
   renderInfoBox({
-    popularSong <- reactive_input()$df %>% 
+
+    df <- filter_df( input, c('song_name', 'display_artist', 'spotify_id', 'rank') )
+
+    popularSong <- df %>% 
       select(song_name, display_artist, spotify_id, rank) %>% 
-      rename(name = song_name) %>% 
+      dplyr::rename(name = song_name) %>% 
       group_by(spotify_id) %>% 
       mutate(
         count = n(),
@@ -122,93 +151,106 @@ infoBox_popularSong <- function(reactive_input) {
     infoBox(
       HTML(
         paste0(
-          "<span class='info-box-text'>Most Popular Song</br>",
+          "<span class='info-box-text'>Most Frequent Song</br>",
           "<strong><em>", popularSong$name, "</em></strong></span>"
         )
       ),
       HTML(
-        createInfoBoxPopularText(popularSong)
+        general_createInfoBoxPopularText(popularSong)
       ),
-      icon = icon("list"),
-      color = "purple",
+      icon = icon("headphones"),
+      color = "black",
       width = 12
     )
+
   })
-  
 }
 
 
-infoBox_highestRankedSong <- function(reactive_input) {
-  
+general_infoBox_highestRankedSong <- function(input) {
   renderInfoBox({
-    highest_song <- reactive_input()$df %>% 
-      select(song_name, display_artist, spotify_id, rank) %>% 
-      rename(name = song_name) %>% 
+
+    df <- filter_df( input, c('song_name', 'display_artist', 'spotify_id', 'rank') )
+    names(df)[names(df) == 'song_name'] <- 'name'
+
+    highest_song <- df %>%
       group_by(spotify_id) %>% 
       mutate(
         count = n(),
-        highest_rank = mean(rank)
+        score = reversed_scoring(rank, max(df$rank), nrow(df)),
+        avg_rank = mean(rank)
       ) %>% 
-      arrange(desc(highest_rank)) %>% 
+      arrange(desc(score)) %>% 
       head(n = 1)
     
     infoBox(
       HTML(
         paste0(
-          "<span class='info-box-text'>Highest Ranked Song </br>",
+          "<span class='info-box-text'>Highest Scored Song </br>",
           "<strong><em>", highest_song$name, "</em></strong></span>"
         )
       ),
       HTML(
-        createInfoBoxHighestText(highest_song)
+        general_createInfoBoxHighestText(highest_song)
       ),
-      icon = icon("list"),
-      color = "purple",
+      icon = icon("headphones"),
+      color = "black",
       width = 12
     )
+
   })
-  
 }
 
-histPlot <- function(reactive_input) {
-  
-  renderPlot({
-    # draw the histogram with the specified number of bins
-    hist(
-      reactive_input()$df[[ reactive_input()$field ]],
-      col = 'darkgray', 
-      border = 'white'
+general_histPlot <- function(input) {
+  renderHighchart({
+
+    df <- filter_df( input, c(input$sidebar_inputField) )
+
+    hchart(
+      df[[ input$sidebar_inputField ]],
+      type = "area",
+      color = echonest_color_palette[[ input$sidebar_inputField ]],
+      name = capitalize( input$sidebar_inputField )
+    ) %>%
+    hc_title(text = paste0("Histogram For ", capitalize(input$sidebar_inputField), " Within Date Range")) %>% 
+    hc_add_theme(hc_theme_538()) %>%
+    hc_tooltip(crosshairs = TRUE)
+
+  })
+}
+
+
+general_boxPlot <- function(input) {
+  renderHighchart({
+
+    df <- filter_df( input, c('year', 'display_artist', 'song_name', input$sidebar_inputField) )    
+
+    # Create a boxplot to show the stats over the variable specified per year
+    hcboxplot(
+      x = df[[ input$sidebar_inputField ]], 
+      var = df$year,
+      color = echonest_color_palette[[ input$sidebar_inputField ]]
+    ) %>% 
+    hc_add_theme(hc_theme_538()) %>%
+    hc_title(
+      text = paste0( "Boxplot For ", capitalize(input$sidebar_inputField), " Per Year (", min(df$year), "-", max(df$year), ")") 
     )
+
   })
-  
 }
 
 
-boxPlot <- function(reactive_input) {
-  # Create a boxplot to show the stats over the variable specified per year
-  
-  renderPlot({
-    ggplot(
-      data = reactive_input()$df,
-      aes(
-        x = year,
-        y = reactive_input()$df[[ reactive_input()$field ]]
-      )
-    ) +
-      geom_boxplot() +
-      xlab( reactive_input()$field ) +
-      coord_flip()
-  })
-  
-}
+general_lineGraph <- function(input) {
+  renderHighchart({
 
+    df <- filter_df( 
+      input, 
+      c('date', 'acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'speechiness', 'valence')
+    )
 
-lineGraph <- function(reactive_input) {
-  
-  renderPlot({
-    reactive_input()$df %>% 
-      group_by(date) %>% 
-      dplyr::mutate(
+    avgs <- df %>% 
+      dplyr::group_by(date) %>% 
+      dplyr::summarise(
         avg_acousticness = mean(acousticness),
         avg_danceability = mean(danceability),
         avg_energy = mean(energy),
@@ -216,30 +258,35 @@ lineGraph <- function(reactive_input) {
         avg_liveness = mean(liveness),
         avg_speechiness = mean(speechiness),
         avg_valence = mean(valence)
-      ) %>% 
-      ungroup() %>% 
-      select(
-        date, 
-        avg_acousticness, 
-        avg_danceability, 
-        avg_energy, 
-        avg_instrumentalness, 
-        avg_liveness, 
-        avg_speechiness, 
-        avg_valence
-      ) %>% 
-      melt(id='date') %>% 
-      ggplot() +
-      geom_line(
-        aes(
-          x = date,
-          y = value,
-          colour = variable
-        )
       )
+
+    rownames(avgs) <- avgs$date
+    avgs$date <- NULL
+
+    avgs_xts <- as.xts(avgs)
+
+    highchart(type = "stock") %>% 
+      hc_title(text = "Avg Echo Values Over Time") %>% 
+      hc_subtitle(text = "Data generated through gathering average field per week.") %>%
+      hc_add_theme(hc_theme_538()) %>%
+      hc_add_series(avgs_xts$avg_acousticness, name = "Acousticness", color = echonest_color_palette$acousticness) %>% 
+      hc_add_series(avgs_xts$avg_danceability, name = "Danceability", color = echonest_color_palette$danceability) %>%
+      hc_add_series(avgs_xts$avg_energy, name = "Energy", color = echonest_color_palette$energy) %>% 
+      hc_add_series(avgs_xts$avg_instrumentalness, name = "Instrumentalness", color = echonest_color_palette$instrumentalness) %>% 
+      hc_add_series(avgs_xts$avg_liveness, name = "Liveness", color = echonest_color_palette$liveness) %>% 
+      hc_add_series(avgs_xts$avg_speechiness, name = "Speechiness", color = echonest_color_palette$speechiness) %>% 
+      hc_add_series(avgs_xts$avg_valence, name = "Valence", color = echonest_color_palette$valence)
+
   })
-  
 }
 
-  
-  
+
+general_dataTab <- function(input) {
+  DT::renderDataTable({
+
+    sra[, c('date', 'display_artist', 'song_name', 'rank', 'acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'speechiness', 'valence')]
+
+  }, options = list(
+    scrollX = TRUE
+  ))
+}
