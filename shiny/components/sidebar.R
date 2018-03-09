@@ -5,13 +5,13 @@ echo_columns <- readRDS('../data/r-objects/shiny/general/echo_columns.rds')
 
 
 sidebar <- dashboardSidebar(
-	sidebarMenu(
+	sidebarMenu(		
 	  
 		# Page Handling
 		h4("Page Selection"),
 		sidebarMenu( menuItemOutput("sidebar_dashboard") ),
-		sidebarMenu( menuItemOutput("sidebar_artists") ),
-		sidebarMenu( menuItemOutput("sidebar_coorelation_art") ),
+		# sidebarMenu( menuItemOutput("sidebar_artists") ),
+		# sidebarMenu( menuItemOutput("sidebar_coorelation_art") ),
 
 		hr(),
 
@@ -28,7 +28,18 @@ sidebar <- dashboardSidebar(
 			"sidebar_inputField",
 			"Echoprint fields:",
 			choices = echo_columns
-		 )
+		),
+
+		sliderInput(
+			"sidebar_echoSlider", 
+			"Field Range", 
+			min = 0, 
+        		max = 1, 
+        		value = c(0, 1)
+        	),
+
+		hr(),
 		  
+		uiOutput("sidebar_echoDescription")		
 	)
 )

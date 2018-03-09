@@ -10,13 +10,15 @@ library(Hmisc)
 library(DT)
 
 
-general_server <- function(input, output, session) {
-  
+general_server <- function(input, output, session) {  
+    
   output$general_histPlot <- general_histPlot(input)
   output$general_boxPlot <- general_boxPlot(input)
   output$general_lineGraph <- general_lineGraph(input)
   output$general_dataTab <- general_dataTab(input)
   
+  output$general_high_echoLevels <- general_infoBox_echoLevels(input, 1)
+  output$general_low_echoLevels <- general_infoBox_echoLevels(input, 2)
   output$general_popularArtist <- general_infoBox_popularArtist(input)
   output$general_highestRankedArtist <- general_infoBox_highestRankedArtist(input)
   output$general_popularSong <- general_infoBox_popularSong(input)
@@ -30,29 +32,40 @@ filter_df <- function(input, cols) {
   endDate <- input$sidebar_dateRange[[2]]
 
   sra[ 
-    sra$date >= startDate & sra$date <= endDate, 
+    (sra$date >= startDate & sra$date <= endDate) &
+    (sra[[ input$sidebar_inputField ]] >= input$sidebar_echoSlider[[1]] & sra[[ input$sidebar_inputField ]] <= input$sidebar_echoSlider[[2]]), 
   ][ , cols ]
 }
 
+general_infoBox_echoLevels <- function(input, level) {
+  renderUI({    
+    df <- filter_df( input, c('spotify_id', input$sidebar_inputField) ) %>%
+      dplyr::arrange_(input$sidebar_inputField)
 
-general_createInfoBoxPopularText <- function(row) {
-  paste0(
-    "<span class='info-box-number'>",
-      "Song Count: <span class='pull-right'>", row$count, "</span></br>",
-      "Highest Rank: <span class='pull-right'>", format(round(row$highest_rank, 2), nsmall = 2), "</span>",
-    "</span>"
-  )
-}
+    if (level == 1) {
+      row <- df[nrow(df), ]
+      header = h4(paste0('Highest ', capitalize(input$sidebar_inputField), ': ', format(round(row[[ input$sidebar_inputField ]], 2), nsmall = 2)))
+      spotify_id <- row$spotify_id
+    } else {
+      row <- df[1, ]
+      header = h4(paste0('Lowest ', capitalize(input$sidebar_inputField), ': ', format(round(row[[ input$sidebar_inputField ]], 2), nsmall = 2)))
+      spotify_id <- row$spotify_id
+    }
 
-
-general_createInfoBoxHighestText <- function(row) {
-  paste0(
-    "<span class='info-box-number'>",
-      "Song Count: <span class='pull-right'>", row$count, "</span></br>",
-      "Avg Ranking: <span class='pull-right'>", format(round(row$avg_rank, 2), nsmall = 2), "</span>",
-      "Score: <span class='pull-right'>", format(round(row$score, 2), nsmall = 2), "</span>",
-    "</span>"
-  )
+    HTML(
+      paste0(
+        header,
+        '<iframe 
+          src="https://open.spotify.com/embed?uri=spotify:track:', spotify_id, '"
+          frameborder="0" 
+          width="250" 
+          height="80" 
+          allow="encrypted-media" 
+          allowtransparency="true">
+        </iframe>'
+      )
+    )
+  })  
 }
 
 
@@ -63,12 +76,11 @@ reversed_scoring <- function(rank_col, highest_rank, df_len) {
 
 
 general_infoBox_popularArtist <- function(input) {
-  
-  renderInfoBox({
+  renderUI({
+
     df <- filter_df( input, c('display_artist', 'rank') )
 
-    pop_artist <- df %>% 
-      select(display_artist, rank) %>% 
+    pop_artist <- df %>%       
       dplyr::rename(name = display_artist) %>% 
       group_by(name) %>% 
       mutate(
@@ -77,32 +89,35 @@ general_infoBox_popularArtist <- function(input) {
       ) %>% 
       arrange(desc(count)) %>% 
       head(n = 1)
+
     
-    infoBox(
-      HTML(
-        paste0(
-          "<span class='info-box-text'>Most Frequent Artist</br>",
-          "<strong><em>", pop_artist$name, "</em></strong></span>"
+    tags$div( class = "shiny-html-output col-sm-12 shiny-bound-output",
+      tags$div( class="info-box",
+        tags$div( class="info-box-number",
+          HTML(paste0('<span>Most Frequent Artist: <span class="pull-right"><strong><em>', pop_artist$name, '</em></strong></span></span>'))
+        ),
+        tags$div( class="info-box-body",
+          tags$span( class="info-box-icon bg-black",
+            HTML('<i class="fa fa-user"></i>')
+          ),
+          tags$div( class="info-box-content",
+            tags$span( class="info-box-text",
+              HTML(paste0('<span class="info-box-text">Song Count: <span class="pull-right">', pop_artist$count, '</span><br>Highest Rank: <span class="pull-right">', format(round(pop_artist$highest_rank, 2), nsmall = 2), '</span></span>'))
+            )
+          )
         )
-      ),
-      HTML(
-        general_createInfoBoxPopularText(pop_artist)
-      ),
-      icon = icon("user"),
-      color = "black",
-      width = 12
+      )
     )
+    
   })
-  
 }
 
 general_infoBox_highestRankedArtist <- function(input) {
-  renderInfoBox({
+  renderUI({
 
     df <- filter_df( input, c('display_artist', 'rank') )
 
-    highest_artist <- df %>% 
-      select(display_artist, rank) %>% 
+    highest_artist <- df %>%       
       dplyr::rename(name = display_artist) %>% 
       group_by(name) %>% 
       mutate(
@@ -112,33 +127,40 @@ general_infoBox_highestRankedArtist <- function(input) {
       ) %>% 
       arrange(desc(score)) %>% 
       head(n = 1)
-    
-    infoBox(
-      HTML(
-        paste0(
-          "<span class='info-box-text'>Highest Scored Artist</br>",
-          "<strong><em>", highest_artist$name, "</em></strong></span>"
+
+    tags$div( class = "shiny-html-output col-sm-12 shiny-bound-output",
+      tags$div( class="info-box",
+        tags$div( class="info-box-number",
+          HTML(paste0('<span>Highest Scored Artist: <span class="pull-right"><strong><em>', highest_artist$name, '</em></strong></span></span>'))
+        ),
+        tags$div( class="info-box-body",
+          tags$span( class="info-box-icon bg-black",
+            HTML('<i class="fa fa-user"></i>')
+          ),
+          tags$div( class="info-box-content",
+            tags$span( class="info-box-text",
+              HTML(paste0('
+                <span class="info-box-text">Song Count: <span class="pull-right">', highest_artist$count, '</span><br>
+                Avg Ranking: <span class="pull-right">', format(round(highest_artist$avg_rank, 2), nsmall = 2), '</span><br>
+                Score: <span class="pull-right">', format(round(highest_artist$score, 2), nsmall = 2), '</span>
+                </span>'
+              ))
+            )
+          )
         )
-      ),
-      HTML(
-        general_createInfoBoxHighestText(highest_artist)
-      ),
-      icon = icon("user"),
-      color = "black",
-      width = 12
-    )
+      )
+    )    
 
   })
 }
 
 
 general_infoBox_popularSong <- function(input) {
-  renderInfoBox({
+  renderUI({
 
     df <- filter_df( input, c('song_name', 'display_artist', 'spotify_id', 'rank') )
 
-    popularSong <- df %>% 
-      select(song_name, display_artist, spotify_id, rank) %>% 
+    popularSong <- df %>%       
       dplyr::rename(name = song_name) %>% 
       group_by(spotify_id) %>% 
       mutate(
@@ -147,28 +169,35 @@ general_infoBox_popularSong <- function(input) {
       ) %>% 
       arrange(desc(count)) %>% 
       head(n = 1)
-    
-    infoBox(
-      HTML(
-        paste0(
-          "<span class='info-box-text'>Most Frequent Song</br>",
-          "<strong><em>", popularSong$name, "</em></strong></span>"
-        )
-      ),
-      HTML(
-        general_createInfoBoxPopularText(popularSong)
-      ),
-      icon = icon("headphones"),
-      color = "black",
-      width = 12
-    )
 
+    tags$div( class = "shiny-html-output col-sm-12 shiny-bound-output",
+      tags$div( class="info-box",
+        tags$div( class="info-box-number",
+          HTML(paste0('<span>Most Frequent Song: <span class="pull-right"><strong><em>', popularSong$name, '</em></strong></span></span>'))
+        ),
+        tags$div( class="info-box-body",
+          tags$span( class="info-box-icon bg-black",
+            HTML('<i class="fa fa-headphones"></i>')
+          ),
+          tags$div( class="info-box-content",
+            tags$span( class="info-box-text",
+              HTML(paste0('
+                <span class="info-box-text">Song Count: <span class="pull-right">', popularSong$count, '</span><br>
+                Highest Rank: <span class="pull-right">', format(round(popularSong$highest_rank, 2), nsmall = 2), '</span>                
+                </span>'
+              ))
+            )
+          )
+        )
+      )
+    )
+        
   })
 }
 
 
 general_infoBox_highestRankedSong <- function(input) {
-  renderInfoBox({
+  renderUI({
 
     df <- filter_df( input, c('song_name', 'display_artist', 'spotify_id', 'rank') )
     names(df)[names(df) == 'song_name'] <- 'name'
@@ -182,21 +211,29 @@ general_infoBox_highestRankedSong <- function(input) {
       ) %>% 
       arrange(desc(score)) %>% 
       head(n = 1)
-    
-    infoBox(
-      HTML(
-        paste0(
-          "<span class='info-box-text'>Highest Scored Song </br>",
-          "<strong><em>", highest_song$name, "</em></strong></span>"
+
+    tags$div( class = "shiny-html-output col-sm-12 shiny-bound-output",
+      tags$div( class="info-box",
+        tags$div( class="info-box-number",
+          HTML(paste0('<span>Highest Scored Song: <span class="pull-right"><strong><em>', highest_song$name, '</em></strong></span></span>'))
+        ),
+        tags$div( class="info-box-body",
+          tags$span( class="info-box-icon bg-black",
+            HTML('<i class="fa fa-headphones"></i>')
+          ),
+          tags$div( class="info-box-content",
+            tags$span( class="info-box-text",
+              HTML(paste0('
+                <span class="info-box-text">Song Count: <span class="pull-right">', highest_song$count, '</span><br>
+                Avg Ranking: <span class="pull-right">', format(round(highest_song$avg_rank, 2), nsmall = 2), '</span><br>
+                Score: <span class="pull-right">', format(round(highest_song$score, 2), nsmall = 2), '</span>
+                </span>'
+              ))
+            )
+          )
         )
-      ),
-      HTML(
-        general_createInfoBoxHighestText(highest_song)
-      ),
-      icon = icon("headphones"),
-      color = "black",
-      width = 12
-    )
+      )
+    )    
 
   })
 }
@@ -206,13 +243,16 @@ general_histPlot <- function(input) {
 
     df <- filter_df( input, c(input$sidebar_inputField) )
 
+    h <- hist(df[[ input$sidebar_inputField ]], breaks = 25, plot = FALSE)
+
     hchart(
-      df[[ input$sidebar_inputField ]],
+      h,
       type = "area",
       color = echonest_color_palette[[ input$sidebar_inputField ]],
       name = capitalize( input$sidebar_inputField )
     ) %>%
-    hc_title(text = paste0("Histogram For ", capitalize(input$sidebar_inputField), " Within Date Range")) %>% 
+    hc_title(text = paste0(capitalize(input$sidebar_inputField), " Frequency ", input$sidebar_dateRange[[1]], " and ", input$sidebar_dateRange[[2]])) %>% 
+    hc_subtitle(text = paste0("All ", input$sidebar_inputField, " values fall anywhere between 0 and 1.")) %>%
     hc_add_theme(hc_theme_538()) %>%
     hc_tooltip(crosshairs = TRUE)
 
@@ -231,11 +271,11 @@ general_boxPlot <- function(input) {
       var = df$year,
       color = echonest_color_palette[[ input$sidebar_inputField ]]
     ) %>% 
+    hc_yAxis(title = list(text = paste0(capitalize(input$sidebar_inputField), " (0-1)"))) %>%
+    hc_xAxis(title = list(text = "Years")) %>%
     hc_add_theme(hc_theme_538()) %>%
-    hc_title(
-      text = paste0( "Boxplot For ", capitalize(input$sidebar_inputField), " Per Year (", min(df$year), "-", max(df$year), ")") 
-    )
-
+    hc_title(text = paste0( "Boxplot For ", capitalize(input$sidebar_inputField), " Per Year (", min(df$year), "-", max(df$year), ")")) %>%
+    hc_subtitle(text = paste0("All ", input$sidebar_inputField, " values fall anywhere between 0 and 1."))
   })
 }
 
@@ -287,6 +327,7 @@ general_dataTab <- function(input) {
     sra[, c('date', 'display_artist', 'song_name', 'rank', 'acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'speechiness', 'valence')]
 
   }, options = list(
-    scrollX = TRUE
+    scrollX = TRUE,
+    scrollY = 400
   ))
 }

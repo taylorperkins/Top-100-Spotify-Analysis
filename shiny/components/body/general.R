@@ -11,11 +11,21 @@ general <- fluidRow(
   box(
     width = 4,
     height = 650,
+    class = 'general_infoBoxes',
     
-    fluidRow( infoBoxOutput("general_popularArtist", width = 12) ),
-    fluidRow( infoBoxOutput("general_highestRankedArtist", width = 12) ),
-    fluidRow( infoBoxOutput("general_popularSong", width = 12) ),
-    fluidRow( infoBoxOutput("general_highestRankedSong", width = 12) )
+    fluidRow( 
+      box(
+        width = 12,
+        class = "general_echoLevels",
+
+        uiOutput("general_high_echoLevels", width = 12),
+        uiOutput("general_low_echoLevels", width = 12)  
+      )
+    ),
+    fluidRow( uiOutput("general_popularArtist", width = 12) ),
+    fluidRow( uiOutput("general_highestRankedArtist", width = 12) ),
+    fluidRow( uiOutput("general_popularSong", width = 12) ),
+    fluidRow( uiOutput("general_highestRankedSong", width = 12) )
   ),
   
   # Plots (Body)
@@ -31,7 +41,7 @@ general <- fluidRow(
       # The id lets us use input$tabset1 on the server to find the current tab
 
       tabPanel(
-        'Hist Plot', 
+        'Histogram', 
 
         highchartOutput("general_histPlot",  width = "100%", height = "500")
       ),

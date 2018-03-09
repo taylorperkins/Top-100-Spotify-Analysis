@@ -1,0 +1,58 @@
+.sidebar pre {
+	white-space: pre-wrap;
+	margin: 0 .5em;
+	word-break: break-word;
+}
+
+.sidebar h4 {
+	white-space: pre-wrap;
+	margin: 0 1em;
+}
+
+.general_echoLevels {
+	text-align: center;
+	padding-bottom: 0;
+	padding-top: 0;
+}
+
+.general_echoLevels h4 {
+	margin: 0 0 .2em 0;
+}
+
+.general_infoBoxes .row:first-child .box {
+	border-top: 0;
+	box-shadow: 0;
+	margin-bottom: 0;
+}
+
+.info-box {
+	padding: 5px;
+	margin-bottom: 5px;
+}
+
+.info-box-body {
+	height: 65px;
+}
+
+.info-box-icon {
+	width: 65px;
+	height: 65px;
+	line-height: 65px;
+}
+
+.info-box-content {
+	padding-top: 0;
+}
+
+.info-box-number {
+	font-size: 16px;
+}
+
+.info-box-text {
+	text-transform: none;
+}
+
+
+
+
+

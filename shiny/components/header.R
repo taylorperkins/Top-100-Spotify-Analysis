@@ -1,4 +1,4 @@
 # Header UI
 library(shinydashboard)
 
-header <- dashboardHeader(title = "Basic dashboard")
+header <- dashboardHeader(title = "Spotify Top 100 Songs Analysis")

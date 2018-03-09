@@ -6,10 +6,10 @@ source('./components/body/artist.R')
 source('./components/body/coorelation_art.R')
 
 
-body <- dashboardBody(
+body <- dashboardBody(  
   tags$head(
     tags$link(rel = "stylesheet", type = "text/css", href = "custom.css")
-  ),
+  ),  
   
   tabItems(
     
@@ -21,13 +21,13 @@ body <- dashboardBody(
       tabName = "dashboard"
     ),
 
-    ########################
-    # Artist View
-    ########################
-    tabItem(
-      artist,
-      tabName = "artist"
-    ),
+    # ########################
+    # # Artist View
+    # ########################
+    # tabItem(
+    #   artist,
+    #   tabName = "artist"
+    # ),
 
     ########################
     # Coorelation Art View
