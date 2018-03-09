@@ -33,8 +33,9 @@ filter_df <- function(input, cols) {
 
   sra[ 
     (sra$date >= startDate & sra$date <= endDate) &
-    (sra[[ input$sidebar_inputField ]] >= input$sidebar_echoSlider[[1]] & sra[[ input$sidebar_inputField ]] <= input$sidebar_echoSlider[[2]]), 
+    (sra[[ input$sidebar_inputField ]] >= input$sidebar_echoSlider[[1]] & sra[[ input$sidebar_inputField ]] <= input$sidebar_echoSlider[[2]]) , 
   ][ , cols ]
+
 }
 
 general_infoBox_echoLevels <- function(input, level) {
@@ -90,8 +91,7 @@ general_infoBox_popularArtist <- function(input) {
       arrange(desc(count)) %>% 
       head(n = 1)
 
-    
-    tags$div( class = "shiny-html-output col-sm-12 shiny-bound-output",
+    tags$div( class="col-md-12",
       tags$div( class="info-box",
         tags$div( class="info-box-number",
           HTML(paste0('<span>Most Frequent Artist: <span class="pull-right"><strong><em>', pop_artist$name, '</em></strong></span></span>'))
@@ -106,7 +106,7 @@ general_infoBox_popularArtist <- function(input) {
             )
           )
         )
-      )
+      )  
     )
     
   })
@@ -128,7 +128,7 @@ general_infoBox_highestRankedArtist <- function(input) {
       arrange(desc(score)) %>% 
       head(n = 1)
 
-    tags$div( class = "shiny-html-output col-sm-12 shiny-bound-output",
+    tags$div( class="col-md-12",
       tags$div( class="info-box",
         tags$div( class="info-box-number",
           HTML(paste0('<span>Highest Scored Artist: <span class="pull-right"><strong><em>', highest_artist$name, '</em></strong></span></span>'))
@@ -149,7 +149,7 @@ general_infoBox_highestRankedArtist <- function(input) {
           )
         )
       )
-    )    
+    )
 
   })
 }
@@ -169,8 +169,8 @@ general_infoBox_popularSong <- function(input) {
       ) %>% 
       arrange(desc(count)) %>% 
       head(n = 1)
-
-    tags$div( class = "shiny-html-output col-sm-12 shiny-bound-output",
+  
+    tags$div( class="col-md-12",
       tags$div( class="info-box",
         tags$div( class="info-box-number",
           HTML(paste0('<span>Most Frequent Song: <span class="pull-right"><strong><em>', popularSong$name, '</em></strong></span></span>'))
@@ -211,8 +211,8 @@ general_infoBox_highestRankedSong <- function(input) {
       ) %>% 
       arrange(desc(score)) %>% 
       head(n = 1)
-
-    tags$div( class = "shiny-html-output col-sm-12 shiny-bound-output",
+    
+    tags$div( class="col-md-12",
       tags$div( class="info-box",
         tags$div( class="info-box-number",
           HTML(paste0('<span>Highest Scored Song: <span class="pull-right"><strong><em>', highest_song$name, '</em></strong></span></span>'))
@@ -233,17 +233,17 @@ general_infoBox_highestRankedSong <- function(input) {
           )
         )
       )
-    )    
+    )
 
   })
 }
 
 general_histPlot <- function(input) {
   renderHighchart({
+      
+    series <- filter_df( input, c(input$sidebar_inputField) )
 
-    df <- filter_df( input, c(input$sidebar_inputField) )
-
-    h <- hist(df[[ input$sidebar_inputField ]], breaks = 25, plot = FALSE)
+    h <- hist(series, breaks = 25, plot = FALSE)
 
     hchart(
       h,
@@ -283,10 +283,9 @@ general_boxPlot <- function(input) {
 general_lineGraph <- function(input) {
   renderHighchart({
 
-    df <- filter_df( 
-      input, 
-      c('date', 'acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'speechiness', 'valence')
-    )
+    df <- sra[ 
+      (sra$date >= input$sidebar_dateRange[[1]] & sra$date <= input$sidebar_dateRange[[2]]),
+    ][ , c('date', 'acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'speechiness', 'valence') ]
 
     avgs <- df %>% 
       dplyr::group_by(date) %>% 
@@ -324,10 +323,15 @@ general_lineGraph <- function(input) {
 general_dataTab <- function(input) {
   DT::renderDataTable({
 
-    sra[, c('date', 'display_artist', 'song_name', 'rank', 'acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'speechiness', 'valence')]
+    sra[, c('spotify_play', 'date', 'display_artist', 'song_name', 'rank', 'acousticness', 'danceability', 'energy', 'instrumentalness', 'liveness', 'speechiness', 'valence')]
 
-  }, options = list(
+  }, 
+  escape = FALSE,  
+  colnames = c('Play', 'Date', 'Artist', 'Song', 'Rank', 'Acousticness', 'Danceability', 'Energy', 'Instrumentalness', 'Liveness', 'Speechiness', 'Valence'),
+  options = list(
     scrollX = TRUE,
-    scrollY = 400
+    scrollY = 400,
+    autoWidth = TRUE,
+    columnDefs = list(list(width = '90px', targets = 1:12))
   ))
 }

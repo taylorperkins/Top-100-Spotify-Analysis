@@ -22,10 +22,10 @@ general <- fluidRow(
         uiOutput("general_low_echoLevels", width = 12)  
       )
     ),
-    fluidRow( uiOutput("general_popularArtist", width = 12) ),
-    fluidRow( uiOutput("general_highestRankedArtist", width = 12) ),
-    fluidRow( uiOutput("general_popularSong", width = 12) ),
-    fluidRow( uiOutput("general_highestRankedSong", width = 12) )
+    fluidRow( uiOutput("general_popularArtist") ),
+    fluidRow( uiOutput("general_highestRankedArtist") ),
+    fluidRow( uiOutput("general_popularSong") ),
+    fluidRow( uiOutput("general_highestRankedSong") )
   ),
   
   # Plots (Body)

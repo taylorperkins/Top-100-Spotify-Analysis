@@ -1,6 +1,7 @@
 library(dplyr)
 library(foreach)
 library(iterators)
+library(shiny)
 
 #############################
 # 
@@ -156,6 +157,14 @@ is_number_one <- function(val) {
   return(0)
 }
 
+assign_spotify_play <- function(val) {
+  HTML(paste0(
+    '<a href="https://open.spotify.com/track/', val, '">
+      <span class="info-box-icon bg-black"><i class="fa fa-spotify"></i></span>
+    </a>'
+  ))
+}
+
 # ADD IN YEAR AND MONTH, KEY_NAME
 sra <- sra %>% 
   mutate(
@@ -174,6 +183,8 @@ sra$valence_cat <- mapply(low_med_high, sra$valence)
 
 sra$is_top_ten <- mapply(is_top_ten, sra$rank)
 sra$is_number_one <- mapply(is_number_one, sra$rank)
+
+sra$spotify_play <- mapply(assign_spotify_play, sra$spotify_id)
 
 #############################
 # SAVE OFF R-OBJECT
