@@ -1,120 +1,69 @@
 library(shinydashboard)
+library(highcharter)
+library(DT)
 
-years <- readRDS('../data/r-objects/shiny/ui/general/years.rds')
-echo_columns <- readRDS('../data/r-objects/shiny/ui/general/echo_columns.rds')
+years <- readRDS('../data/r-objects/shiny/utility/years.rds')
+echo_columns <- readRDS('../data/r-objects/shiny/general/echo_columns.rds')
 
 
 general <- fluidRow(
-  
-  # Control panel, Highs and Lows (Sidebar)
+
   box(
-    width = 12,
+    width = 4,
+    height = 650,
+    class = 'general_infoBoxes',
     
-    fluidRow(
-      # Control panel
+    fluidRow( 
       box(
         width = 12,
-        title = "Controls",
-        box(
-          width = 4,
-          selectInput(
-            "years",
-            "Years:",
-            choices = years$year,
-            multiple = TRUE,
-            selected = years$year
-          ) 
-        ),
-        box(
-          width = 4,
-          selectInput(
-            "inputField",
-            "Echoprint fields:",
-            choices = echo_columns
-          ) 
-        ),
-        box(
-          width = 4,
-          actionButton(
-            inputId = "submit",
-            label = "Submit"
-          ) 
-        )
+        class = "general_echoLevels",
+
+        uiOutput("general_high_echoLevels", width = 12),
+        uiOutput("general_low_echoLevels", width = 12)  
       )
     ),
-    
-    fluidRow(
-      # Info boxes for:
-      #     1. Most popular artist
-      #     2. Highest ranked artist (mean)
-      #     3. Most popular song
-      #     4. Highest ranked song (mean)
-      box(
-        width = 4,
-        height = 650,
-        
-        fluidRow(
-          infoBoxOutput("general_popularArtist", width = 12)
-        ),
-        fluidRow(
-          infoBoxOutput("general_highestRankedArtist", width = 12)
-        ),
-        fluidRow(
-          infoBoxOutput("general_popularSong", width = 12)
-        ),
-        fluidRow(
-          infoBoxOutput("general_highestRankedSong", width = 12)
-        )
-        
+    fluidRow( uiOutput("general_popularArtist") ),
+    fluidRow( uiOutput("general_highestRankedArtist") ),
+    fluidRow( uiOutput("general_popularSong") ),
+    fluidRow( uiOutput("general_highestRankedSong") )
+  ),
+  
+  # Plots (Body)
+  box(
+    width = 8,
+    height = 650,
+
+    tabBox(
+      id = "general_plot_tabset", 
+      title = "Plots",
+      height = "500px",
+      width = 12,
+      # The id lets us use input$tabset1 on the server to find the current tab
+
+      tabPanel(
+        'Histogram', 
+
+        highchartOutput("general_histPlot",  width = "100%", height = "500")
       ),
-      
-      # Plots (Body)
-      box(
-        width = 8,
-        height = 650,
-        
-        # Hist and box plots
-        fluidRow(
-          # Hist
-          box(
-            width = 6,
-            height = 300,
-            title = 'Hist Plot',
-            plotOutput(
-              "general_histPlot", 
-              width = "100%",
-              height = "200"
-            )
-          ),
-          
-          # Boxplot
-          box(
-            width = 6,
-            height = 300,
-            title = 'Boxplot',
-            plotOutput(
-              "general_boxPlot", 
-              width = "100%",
-              height = "200"
-            )
-          )
-        ),
-        
-        # Line graph
-        fluidRow(
-          # Line Graph
-          box(
-            width = 12,
-            height = 300,
-            title = 'Line Graph',
-            plotOutput(
-              'general_lineGraph',
-              width = "100%",
-              height = "200"
-            )
-          )
-        )
-      )   
+
+      tabPanel(
+        'Box Plot', 
+
+        highchartOutput("general_boxPlot", width = "100%", height = "500")
+      ),
+
+      tabPanel(
+        'Line Graph', 
+
+        highchartOutput('general_lineGraph', width = "100%", height = "500")
+      ),
+
+      tabPanel(
+        'Dataset', 
+
+        DT::dataTableOutput("general_dataTab", width = "100%", height = "500")
+      )
     )
   )
+
 )

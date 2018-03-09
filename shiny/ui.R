@@ -8,5 +8,6 @@ source('./components/body.R')
 ui <- dashboardPage(
   header = header,
   sidebar =  sidebar,
-  body = body
+  body = body,
+  skin = "black"
 )
