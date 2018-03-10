@@ -18,7 +18,7 @@ sidebar <- dashboardSidebar(
 		h4("Plot Filters"),
 		dateRangeInput(
 			'sidebar_dateRange',
-			label = 'Date range input: yyyy-mm-dd',
+			label = 'Date Range Input: yyyy-mm-dd',
 			start = as.Date(min(sra$date)), 
 			end = as.Date(max(sra$date))
 		),
@@ -26,7 +26,7 @@ sidebar <- dashboardSidebar(
 		  # Input inside of menuSubItem		  
 		selectInput(
 			"sidebar_inputField",
-			"Echoprint fields:",
+			"Echo Nest Fields:",
 			choices = echo_columns
 		),
 
