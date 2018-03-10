@@ -162,7 +162,7 @@ general_infoBox_popularSong <- function(input) {
 
     popularSong <- df %>%       
       dplyr::rename(name = song_name) %>% 
-      group_by(spotify_id) %>% 
+      group_by(name) %>% 
       mutate(
         count = n(),
         highest_rank = min(rank)
@@ -203,7 +203,7 @@ general_infoBox_highestRankedSong <- function(input) {
     names(df)[names(df) == 'song_name'] <- 'name'
 
     highest_song <- df %>%
-      group_by(spotify_id) %>% 
+      group_by(name) %>% 
       mutate(
         count = n(),
         score = reversed_scoring(rank, max(df$rank), nrow(df)),
