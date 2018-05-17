@@ -1,6 +1,6 @@
 library(RColorBrewer)
 
-sra <- readRDS('../data/r-objects/song-ranked-analytics/song-ranked-analytics.rds')
+sra <- readRDS('./data/song-ranked-analytics.rds')
 sra$date <- as.Date(sra$date)
 
 # tracks <- readRDS('../data/r-objects/track/track.rds')

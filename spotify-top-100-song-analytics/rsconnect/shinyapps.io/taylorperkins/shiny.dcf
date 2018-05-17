@@ -1,0 +1,10 @@
+name: shiny
+title:
+username:
+account: taylorperkins
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 298973
+bundleId: 1267386
+url: https://taylorperkins.shinyapps.io/shiny/
+when: 1520988945.82218
