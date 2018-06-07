@@ -32,3 +32,5 @@ This dashboard allows for some additional insights to be drawn out, including th
 <p align="center">
   <img src="/images/line_graph.gif?raw=true" width="600px">
 </p>
+
+And that.. Concludes my first-half project for the data science cohort at Nashville Software School!!! I hope to add to this project later on, but until then.. This is what I got! Thank you for checking out my project
