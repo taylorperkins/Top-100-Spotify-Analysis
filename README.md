@@ -1,34 +1,32 @@
-# SHINY / Top Ranked Billboards Trends
+# Trends in Billboards Top Ranked Songs
 
 The purpose of this app is to spot trends within the top ranked songs (based on the **unofficial** billboards api)
-from every week over the span of 2000 - 2017 using Spotify's audio analysis api, as well as potentially
-spotting trends in **what will be** the following top 100 songs.
+from every week over the span of 2000 - 2017 using Spotify's audio analysis api, specifically features extracted from [Echonest](http://static.echonest.com/enspex/)
 
-I do this by first obtaining songs, dates, and their ranks through the billboards api. Second, I gather a base
-audio analysis of every song, as well as an in depth anaysis using Spotify's api. 
-Some key features I would like to focus on would be: 
+I do this by first obtaining songs, dates, and their ranks through the billboards api. Second, I gather a high level overview of the song's audio features, especially focussing on some key features defined by Echonest through the Spotify API. These features include the following, and definitions can be found [here](https://developer.spotify.com/documentation/web-api/reference/tracks/get-audio-features/#audio-features-object): 
 
-* Energy of the song
-* Amount of vocals
-* Song duration
-* Key
-* Modality
-* Repetition in structure (beats, segments like chorus/verses, or pitches)
+* Danceability
+* Energy
+* Speechiness
+* Acousticness
+* Instrumentalness
+* Valence
 
+The goal of this app was to create a dashboard to allow the user to explore this featureset and how each feature correlates with the rank of the song on a week to week basis, if at all. 
 
-## Data
-I use data from a few different places. I gather data from 3 separate api endpoints, and merge them together or split
-them apart based on the spotify_id associated with them.
-The first dataset I use is from the billboards api. `http://billboard.modulo.site/rank/song/<[1-100]>?from=2000-1-1&to=2017-12-31`
+![Overview](./images/overview.png)
 
->* **date**             date song was ranked
-* **song_id**          unique song id for billboards api (not used by me)
-* **song_name**        name of song
-* **artist_id**        unique artist id for billboards api (not used by me)
-* **spotify_api**      unique song id for spotify api
-* **rank**             rank given
+This is the overall view of the dashboard, hopefully it is pretty self-explanatory! But if not..
+As you can see on the left, there are some different filters you can apply across the dataset. You are able to manipulate the filters in any way you would like, and all of the graphs form to the filtering. Some features you can incorporate: 
 
-The second being `https://api.spotify.com/v1/audio-features/?ids=123,234,345,456,567`
-*field definitions can be found in the [spotify docs](https://developer.spotify.com/web-api/get-several-audio-features/)*
+* Date Ranges (2000 - 2017)
+* Echo Nest Fields as described above
+* A Field Range (Each echonest value is a number between 0 and 1 describing the likelihood it sounds as so.)
 
->* acousticness, analysis_url, danceability, duration_ms, energy, instrumentalness, key, liveness, loudness, mode, speechiness, tempo, time_signature, track_href, type, uri, valence
+I also include definitions for every echonest field directly below for clarity. As you filter, you will be able to get examples of songs that are highest and lowest of the spectrum that you choose, that way you have a better understanding of what it means to be __highly acoustic__ or not. The example above shows Justin Bieber's "Nothing Like Us" as the highest acoustic song for that filter as defined by Spotify / Echonest. The inverse is the song "Doomsday Clock" by the Transformers album soundtrack. Below you see the song "9" as being the highest energy song for that specific filter at `0.71` with the filters being `0.08-0.71`, and the inverse is "Done" by Low. 
+
+![Filtered](./images/filtered.png)
+
+This dashboard allows for some additional insights to be drawn out, including the most frequent artist or song, or the highest scored artist or song. You also have the ability to pull data from graphs displaying the correlation between rank and echonest field, the year and field, or the avg field level over any given week, as represented in the video below. 
+
+<iframe src='//gifs.com/embed/highcharter-line-chart-PZq2Nw' frameborder='0' scrolling='no' width='1014px' height='908px' style='-webkit-backface-visibility: hidden;-webkit-transform: scale(1);' ></iframe>
