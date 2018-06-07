@@ -29,6 +29,6 @@ I also include definitions for every echonest field directly below for clarity. 
 
 This dashboard allows for some additional insights to be drawn out, including the most frequent artist or song, or the highest scored artist or song. You also have the ability to pull data from graphs displaying the correlation between rank and echonest field, the year and field, or the avg field level over any given week, as represented in the video below. 
 
-<div class="col-md-6" style="text-align: center;">
+<p align="center">
   <img src="/images/line_graph.gif?raw=true" width="600px">
-</div>
+</p>
