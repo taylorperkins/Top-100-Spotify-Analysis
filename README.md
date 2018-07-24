@@ -29,4 +29,16 @@ I also include definitions for every echonest field directly below for clarity. 
 
 This dashboard allows for some additional insights to be drawn out, including the most frequent artist or song, or the highest scored artist or song. You also have the ability to pull data from graphs displaying the correlation between rank and echonest field, the year and field, or the avg field level over any given week, as represented in the video below. 
 
-<iframe src='//gifs.com/embed/highcharter-line-chart-PZq2Nw' frameborder='0' scrolling='no' width='1014px' height='908px' style='-webkit-backface-visibility: hidden;-webkit-transform: scale(1);' ></iframe>
+<p align="center">
+  <img src="/images/line_graph.gif?raw=true" width="600px">
+</p>
+
+And that.. Concludes my first-half project for the data science cohort at Nashville Software School!!! I hope to add to this project later on, but until then.. This is what I got! Thank you for checking out my project.
+
+If you are looking at the code on how I got it up and running.. Let me explain some direction to where everything lives. 
+I used bash scripting to pull in data and store it from the Billboards API. That can be found in the `bash_scripts/` directory.
+I grabbed all of my data from the Spotify API using python, but in jupyter notebooks. It is a little messy, as data scientists are. Adventurers be warned. Those can be found in the `py-scripts/create_data/` directory.
+Some initial data cleanup and exploration can be found in `r-scripts/`. 
+The actual application lives in `spotify-top-100-song-analytics/`.
+
+You will not be able to run the app without the data. So sorry! Please get in touch with me if you are interested in running it on your machine, and I would be more than happy to help you get all set up. Thanks!!
